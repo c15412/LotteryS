@@ -91,8 +91,8 @@ public class 彩票系统 implements CommandExecutor, Listener {
             }
 
             void 运行() {
-                if (sender instanceof Player) {
-                    if ("买彩票cpltlotterytickets".contains(label.toLowerCase())) {
+                if ("买彩票cpltlotterytickets".contains(label.toLowerCase())) {
+                    if (sender instanceof Player) {
                         Player 玩家 = (Player) sender;
                         if (获取.主手数据(玩家).equals(new ItemStack(Material.PAPER).getItemMeta())) {
                             int 数量 = 获取.主手(玩家).getAmount();
@@ -126,7 +126,9 @@ public class 彩票系统 implements CommandExecutor, Listener {
                                 发信息(玩家, String.format("您本次购买共需要经验值 §e%d点 ，§c仍差 %d，请补充经验再来！", 经验值, 玩家经验 - 经验值));
                             }
                         } else 发信息(玩家, "§c请手里拿着一张或多张空白的纸再购买彩票！");
-                    } else if ("彩票开奖kj".contains(label)) {
+                    } else 发信息(sender, "§c§l只有在游戏中的玩家可以使用本功能！");
+                } else if ("彩票开奖kj".contains(label)) {
+                    if (sender instanceof Player) {
                         Player 玩家 = (Player) sender;
                         ItemStack 物品 = 获取.主手(玩家);
                         ItemMeta 物品数据 = 物品.getItemMeta();
@@ -167,26 +169,27 @@ public class 彩票系统 implements CommandExecutor, Listener {
                                 }.runTask(获取.插件);
                             }
                         } else 发信息(玩家, "§c请拿着有效彩票再来使用开奖指令！ ");
-                    }
-                } else 发信息(sender, "§c§l只有在游戏中的玩家可以使用本功能！");
-                if ("彩票记录查询彩票记录".contains(label)) {
+                    } else 发信息(sender, "§c§l只有在游戏中的玩家可以使用本功能！");
+                } else {
                     if (sender.hasPermission("LotteryS.checkLottery")) {
-                        if (获取.提取数字(args[0]).length() > 0) {
-                            if (Long.parseLong(获取.提取数字(args[0])) < 99)
-                                IntStream.rangeClosed(0, Integer.parseInt(获取.提取数字(args[0]))).forEach(i -> 发信息(sender, String.format("§b第：§3%s §b期彩票开奖号码为： %s", 开奖时间[99 - i], Arrays.toString(开奖结果[99 - i]))));
-                            else {
-                                final String[] 对应开奖结果 = {"aaaaaaaaaa"};
-                                String 对应开奖结果2 = null;
-                                try {
-                                    对应开奖结果2 = 表格.executeQuery(String.format("SELECT * FROM PrizeHistory WHERE TIME == %s;", args[0])).getString("result");
-                                    对应开奖结果[0] = 对应开奖结果2.replace("[", "").replace(", ", "").replace("]", "").trim();
-                                } catch (Exception ignored) {
+                        if (args.length > 0) {
+                            if (args[0].length() > 0) {
+                                if (Long.parseLong(获取.提取数字(args[0])) < 99)
+                                    IntStream.rangeClosed(0, Integer.parseInt(获取.提取数字(args[0]))).forEach(i -> 发信息(sender, String.format("§b第：§3%s §b期彩票开奖号码为： %s", 开奖时间[99 - i], Arrays.toString(开奖结果[99 - i]))));
+                                else {
+                                    final String[] 对应开奖结果 = {"aaaaaaaaaa"};
+                                    String 对应开奖结果2 = null;
+                                    try {
+                                        对应开奖结果2 = 表格.executeQuery(String.format("SELECT * FROM PrizeHistory WHERE TIME == %s;", args[0])).getString("result");
+                                        对应开奖结果[0] = 对应开奖结果2.replace("[", "").replace(", ", "").replace("]", "").trim();
+                                    } catch (Exception ignored) {
+                                    }
+                                    if (!对应开奖结果[0].equals("aaaaaaaaaa"))
+                                        发信息(sender, String.format("§b第： §3%s §b期彩票开奖号码为：§e%s", args[0], 对应开奖结果2));
+                                    else 发信息(sender, String.format("§c彩票期数 %s 错误，不存在该期彩票！ ", args[0]));
                                 }
-                                if (!对应开奖结果[0].equals("aaaaaaaaaa"))
-                                    发信息(sender, String.format("§b第：§3%s §b期彩票开奖号码为： %s", args[0], 对应开奖结果2));
-                                else 发信息(sender, String.format("§c彩票期数 %s 错误，不存在该期彩票！ ", args[0]));
-                            }
-                        } else 发信息(sender, String.format("§c彩票期数 %s 错误，不存在该期彩票！ ", args[0]));
+                            } else 发信息(sender, String.format("§c彩票期数 %s 错误，不存在该期彩票！ ", args[0]));
+                        } else 发信息(sender, "§c彩票期数  错误，不存在该期彩票！ ");
                     } else 发信息(sender, "§c您无权限查询彩票记录和历史开奖结果！");
                 }
             }

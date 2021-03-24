@@ -11,7 +11,7 @@ public class MainClass extends JavaPlugin {
     @Override
     public void onLoad() {
         super.onLoad();
-        控制台信息("§b§l测试插件已经开始加载。");
+        控制台信息("§b§l彩票插件已经开始加载。");
     }
 
     @Override
@@ -28,7 +28,7 @@ public class MainClass extends JavaPlugin {
             throwables.printStackTrace();
         }//启用彩票系统及其数据库
 
-        控制台信息("§b§l测试插件已启用。");
+        控制台信息("§b§l彩票插件已启用。");
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(获取.插件, 彩票系统.彩票运行器, 40, 2400);
 
