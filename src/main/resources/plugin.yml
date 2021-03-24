@@ -1,13 +1,21 @@
 name: LotteryS
 author: '１５４１２'
 main: org.c15412.Plugin2.Lottery.MainClass
-version: '1.2.0'
+version: '1.2.5'
 api-version: '1.16'
+
+permissions:
+  LotteryS.*:
+    children:
+      LotteryS.checkLottery: true
+  LotteryS.checkLottery:
+    description: '允许玩家查看彩票记录'
+    default: false
 
 commands:
   彩票:
     description: '购买彩票'
-    usage: '/彩票 [十个数字(不想选的可以输入R)]'
+    usage: '/彩票 [选号，十个数字(不想选的可以输入R或不填写)]'
     aliases:
       - '买彩票'
       - 'cp'
@@ -16,6 +24,10 @@ commands:
       - 'lotterytickets'
       - '彩票开奖'
       - '开奖'
-
+      - 'kj'
+      - '彩票记录查询'
+      - '查询彩票记录'
+      - '查询彩票'
+      - '彩票查询'
 
 
