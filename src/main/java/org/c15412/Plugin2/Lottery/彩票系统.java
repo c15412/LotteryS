@@ -6,7 +6,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,7 +22,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class 彩票系统 implements CommandExecutor, Listener {
+public class 彩票系统 implements CommandExecutor {
     public static File 文件夹 = 获取.插件.getDataFolder();
     public static String 路径 = String.format("jdbc:sqlite://%s\\彩票.db", 文件夹.getAbsolutePath());
     public static Connection 连接;
@@ -46,14 +45,16 @@ public class 彩票系统 implements CommandExecutor, Listener {
         public void run() {
             long 时间 = System.currentTimeMillis() + 120000;
             IntStream.rangeClosed(0, 98).forEach(i1 -> {
-                IntStream.rangeClosed(0,9).forEach(i ->{开奖结果[i1][i] = 开奖结果[i1 + 1][i];});
+                IntStream.rangeClosed(0, 9).forEach(i -> {
+                    开奖结果[i1][i] = 开奖结果[i1 + 1][i];
+                });
                 开奖时间[i1] = 开奖时间[i1 + 1];
             });
             Random 随机数 = new Random();
             开奖时间[99] = "" + 时间;
             IntStream.rangeClosed(0, 9).forEach(i -> 开奖结果[99][i] = 随机数.nextInt(10));
-            Bukkit.broadcastMessage("§b本期彩票时间为： §3" + 开奖时间[98] + "\n§b本期开奖号码为： " + Arrays.toString(开奖结果[98]));
-            彩票记录(开奖时间[98], Arrays.toString(开奖结果[98]));
+            Bukkit.broadcastMessage(String.format("§b本期彩票时间为： §3%s\n§b本期开奖号码为： %s", 开奖时间[98], Arrays.toString(开奖结果[98])));
+            if (开奖时间[98] != null) 彩票记录(开奖时间[98], Arrays.toString(开奖结果[98]));
         }
     };
 
@@ -65,25 +66,29 @@ public class 彩票系统 implements CommandExecutor, Listener {
         }
     }
 
-    public static ItemStack 彩票(int 数量, String 时间, int[] 彩票值) {
-        ItemStack 彩票 = new ItemStack(Material.PAPER, 数量);
-        ItemMeta 数据 = 彩票.getItemMeta();
-        数据.setUnbreakable(true);
-        ((Damageable) 数据).setDamage(100);
-        数据.setDisplayName("§b彩票");
-        List<String> 彩票注释 = new ArrayList<>(), s = IntStream.rangeClosed(0, 9).mapToObj(i -> String.valueOf(彩票值[i])).collect(Collectors.toList());
-        彩票注释.add("§b时间：");
-        彩票注释.add("§e" + 时间);
-        彩票注释.add("§b号码：");
-        IntStream.range(0, 10).mapToObj(i -> String.valueOf(彩票值[i])).forEach(彩票注释::add);
-        数据.setLore(彩票注释);
-        彩票.setItemMeta(数据);
-        return 彩票;
+    static void 发信息(CommandSender 玩家, String 信息) {
+        玩家.sendMessage(String.format("§a§l「彩票系统」： §3%s", 信息));
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         new BukkitRunnable() {
+            public ItemStack 彩票(int 数量, String 时间, int[] 彩票值) {
+                ItemStack 彩票 = new ItemStack(Material.PAPER, 数量);
+                ItemMeta 数据 = 彩票.getItemMeta();
+                数据.setUnbreakable(true);
+                ((Damageable) 数据).setDamage(100);
+                数据.setDisplayName("§b彩票");
+                List<String> 彩票注释 = new ArrayList<>(), s = IntStream.rangeClosed(0, 9).mapToObj(i -> String.valueOf(彩票值[i])).collect(Collectors.toList());
+                彩票注释.add("§b时间：");
+                彩票注释.add("§e" + 时间);
+                彩票注释.add("§b号码：");
+                IntStream.range(0, 10).mapToObj(i -> String.valueOf(彩票值[i])).forEach(彩票注释::add);
+                数据.setLore(彩票注释);
+                彩票.setItemMeta(数据);
+                return 彩票;
+            }
+
             @Override
             public void run() {
                 运行();
@@ -139,44 +144,49 @@ public class 彩票系统 implements CommandExecutor, Listener {
                             int 数量 = 物品.getAmount();
                             String 期数 = 物品数据.getLore().get(1).replace("§e", "");
                             final String[] 对应开奖结果 = {"aaaaaaaaaa"};
-                            try {
-                                对应开奖结果[0] = (表格.executeQuery(String.format("SELECT * FROM PrizeHistory WHERE TIME == %s;", 期数)).getString("result")).replace("[", "").replace(", ", "").replace("]", "").trim();
-                            } catch (SQLException throwables) {
-                                throwables.printStackTrace();
-                            }
-                            if (!对应开奖结果[0].equals("aaaaaaaaaa")) {
-                                相似度 = (int) IntStream.range(0, 10).filter(s -> 物品数据.getLore().get(s + 3).equals(String.valueOf(对应开奖结果[0].charAt(s)))).count();
-                                int 数值 = 9 * 数量 * 相似度 * 相似度 * 相似度 * 相似度;
-                                发信息(玩家, String.format("§b亲爱的玩家，第§e %s §b期彩票您获得了 §e经验值： %d 点。", 期数, 数值));
-                                new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        获取.同步指令("minecraft:xp add " + 玩家.getName() + " " + 数值);
-                                        获取.主手(玩家).setItemMeta((new ItemStack(Material.PAPER)).getItemMeta());
-                                        this.cancel();
-                                    }
-                                }.runTask(获取.插件);
-                            } else if (物品数据.getLore().get(1).equals("§e" + 开奖时间[99])) {
+                            if (期数.equals(开奖时间[99])) {
                                 long 时间 = System.currentTimeMillis();
                                 发信息(玩家, String.format("现在时间为§e %d §3，距离本期开奖仍差§e%d§3秒。", 时间, (int) ((Long.parseLong(开奖时间[99]) - 时间) / 1000)));
                             } else {
-                                new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        物品.setItemMeta((new ItemStack(Material.PAPER)).getItemMeta());
-                                        this.cancel();
-                                    }
-                                }.runTask(获取.插件);
+                                try {
+                                    对应开奖结果[0] = (表格.executeQuery(String.format("SELECT * FROM PrizeHistory WHERE TIME == %s;", 期数)).getString("result")).replace("[", "").replace(", ", "").replace("]", "").trim();
+                                } catch (SQLException throwables) {
+                                    throwables.printStackTrace();
+                                }
+                                if (!对应开奖结果[0].equals("aaaaaaaaaa")) {
+                                    相似度 = (int) IntStream.range(0, 10).filter(s -> 物品数据.getLore().get(s + 3).equals(String.valueOf(对应开奖结果[0].charAt(s)))).count();
+                                    int 数值 = 4 * 数量 * 相似度;
+                                    for (int s = 1; s <= 相似度; s++) 数值 = 数值 * 4;
+                                    发信息(玩家, String.format("§b亲爱的玩家，第§e %s §b期彩票您获得了 §e经验值： %d 点。", 期数, 数值));
+                                    int final数值 = 数值;
+                                    new BukkitRunnable() {
+                                        @Override
+                                        public void run() {
+                                            获取.同步指令("minecraft:xp add " + 玩家.getName() + " " + final数值);
+                                            获取.主手(玩家).setItemMeta((new ItemStack(Material.PAPER)).getItemMeta());
+                                            this.cancel();
+                                        }
+                                    }.runTask(获取.插件);
+                                } else {
+                                    new BukkitRunnable() {
+                                        @Override
+                                        public void run() {
+                                            物品.setItemMeta((new ItemStack(Material.PAPER)).getItemMeta());
+                                            this.cancel();
+                                        }
+                                    }.runTask(获取.插件);
+                                }
                             }
                         } else 发信息(玩家, "§c请拿着有效彩票再来使用开奖指令！ ");
                     } else 发信息(sender, "§c§l只有在游戏中的玩家可以使用本功能！");
                 } else {
-                    if (sender.hasPermission("LotteryS.checkLottery")) {
+                    if (sender.hasPermission("Get-M.checkLottery")) {
                         if (args.length > 0) {
                             if (args[0].length() > 0) {
-                                if (Long.parseLong(获取.提取数字(args[0])) < 99)
-                                    IntStream.rangeClosed(0, Integer.parseInt(获取.提取数字(args[0]))).forEach(i -> 发信息(sender, String.format("§b第：§3%s §b期彩票开奖号码为： %s", 开奖时间[99 - i], Arrays.toString(开奖结果[99 - i]))));
-                                else {
+                                if (Long.parseLong(获取.提取数字(args[0])) <= 99) {
+                                    int bound = Integer.parseInt(获取.提取数字(args[0]));
+                                    IntStream.rangeClosed(0, bound).forEach(i -> 发信息(sender, String.format("§b第：§3%s §b期彩票开奖号码为： §e%s", 开奖时间[99 - i], Arrays.toString(开奖结果[99 - i]))));
+                                } else {
                                     final String[] 对应开奖结果 = {"aaaaaaaaaa"};
                                     String 对应开奖结果2 = null;
                                     try {
@@ -194,12 +204,6 @@ public class 彩票系统 implements CommandExecutor, Listener {
                 }
             }
         }.runTaskAsynchronously(获取.插件);
-
         return true;
     }
-
-    void 发信息(CommandSender 玩家, String 信息) {
-        玩家.sendMessage(String.format("§a§l「彩票系统」： §3%s", 信息));
-    }
 }
-

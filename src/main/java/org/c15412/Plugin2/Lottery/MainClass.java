@@ -5,6 +5,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Arrays;
+
 
 public class MainClass extends JavaPlugin {
 
@@ -39,6 +41,7 @@ public class MainClass extends JavaPlugin {
         super.onDisable();
 
         try {
+            if (彩票系统.开奖时间[99]!=null)彩票系统.彩票记录(彩票系统.开奖时间[99], Arrays.toString(彩票系统.开奖结果[99]));
             彩票系统.表格.close();
             彩票系统.连接.close();
         } catch (SQLException throwables) {
