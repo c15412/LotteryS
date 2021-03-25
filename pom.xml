@@ -6,7 +6,7 @@
 
     <groupId>org.c15412.Plugin2.Lottery</groupId>
     <artifactId>LotteryS</artifactId>
-    <version>1.2.5-SNAPSHOT</version>
+    <version>1.2.8</version>
 
     <build>
         <plugins>
