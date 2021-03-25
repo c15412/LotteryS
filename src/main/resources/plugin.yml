@@ -1,7 +1,7 @@
 name: LotteryS
 author: '１５４１２'
 main: org.c15412.Plugin2.Lottery.MainClass
-version: '1.2.7'
+version: '1.2.8'
 api-version: '1.16'
 
 permissions:
@@ -10,12 +10,12 @@ permissions:
       LotteryS.checkLottery: true
   LotteryS.checkLottery:
     description: '允许玩家查看彩票记录'
-    default: false
+    default: op
 
 commands:
   彩票:
     description: '购买彩票'
-    usage: '/彩票 [选号，十个数字(不想选的可以输入R或不填写)]'
+    usage: '/彩票 [选号，十个数字(不想选的可以输入R或不填写)]，\n或者 /彩票开奖 进行开奖兑奖，又或者 /查询彩票记录 [彩票期数/小于99的数N表示最近N期] '
     aliases:
       - '买彩票'
       - 'cp'
@@ -30,5 +30,6 @@ commands:
       - '查询彩票'
       - '彩票查询'
       - '开奖记录'
+      - '查询开奖记录'
 
 

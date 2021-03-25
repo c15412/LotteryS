@@ -46,7 +46,7 @@ public class 彩票系统 implements CommandExecutor, Listener {
         public void run() {
             long 时间 = System.currentTimeMillis() + 120000;
             IntStream.rangeClosed(0, 98).forEach(i1 -> {
-                开奖结果[i1] = 开奖结果[i1 + 1];
+                IntStream.rangeClosed(0,9).forEach(i ->{开奖结果[i1][i] = 开奖结果[i1 + 1][i];});
                 开奖时间[i1] = 开奖时间[i1 + 1];
             });
             Random 随机数 = new Random();
