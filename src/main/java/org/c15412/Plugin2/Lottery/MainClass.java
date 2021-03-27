@@ -26,6 +26,7 @@ public class MainClass extends JavaPlugin {
             彩票系统.连接 = DriverManager.getConnection(彩票系统.路径);
             彩票系统.表格 = 彩票系统.连接.createStatement();
             彩票系统.表格.executeUpdate("create table if not exists PrizeHistory(TIME String, result String, PRIMARY KEY (TIME,result));");
+            彩票系统.表格.executeUpdate("create table if not exists BuyHistory(TIME String, Number String, UUID String, PRIMARY KEY (UUID));");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }//启用彩票系统及其数据库

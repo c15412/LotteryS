@@ -144,6 +144,10 @@ public class 获取 {
         return 提取字符(字符串, "0-9");
     }
 
+    public static String 数字(String 字符串) {
+        return 提取字符(字符串, "0-9");
+    }
+
     public static String 物品名称(ItemStack 物品) {
         String 名称 = 物品显示名称(物品);
         if (名称.length() == 0) return 物品.getType().name();
