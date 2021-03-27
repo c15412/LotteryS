@@ -162,14 +162,14 @@ public class 彩票系统 implements CommandExecutor {
                             } else {
                                 try {
                                     if (物品数据.getLore().size()==14) {
-                                        ResultSet 查找结果 = 表格.executeQuery(String.format("SELECT * FROM BuyHistory WHERE UUID == %s;", 物品数据.getLore().get(13)));
+                                        ResultSet 查找结果 = 表格.executeQuery(String.format("SELECT * FROM BuyHistory WHERE UUID == '%s';", 物品数据.getLore().get(13)));
                                         if (查找结果.getString("TIME").equals(期数) && 获取.数字(查找结果.getString("Number")).equals(购买号码))
                                             对应开奖结果[0] = 获取.数字(表格.executeQuery(String.format("SELECT * FROM PrizeHistory WHERE TIME == %s;", 期数)).getString("result"));
                                         else {
                                             发信息(玩家, "§c 警告，§e此彩票§4§cl未入记录§e或§4§l与记录不符§b，非合法彩票，禁止兑奖！");
                                             return;
                                         }
-                                    }else if (物品数据.getLore().size()==13)对应开奖结果[0] = (表格.executeQuery(String.format("SELECT * FROM PrizeHistory WHERE TIME == %s;", 期数)).getString("result")).replace("[", "").replace(", ", "").replace("]", "").trim();
+                                    }else if (物品数据.getLore().size()==13)对应开奖结果[0] = 获取.数字(表格.executeQuery(String.format("SELECT * FROM PrizeHistory WHERE TIME == %s;", 期数)).getString("Number"));
                                 } catch (SQLException throwables) {
                                     throwables.printStackTrace();
                                 }
@@ -203,7 +203,7 @@ public class 彩票系统 implements CommandExecutor {
                     if (sender.hasPermission("Get-M.checkLottery")) {
                         if (args.length > 0) {
                             if (args[0].length() > 0) {
-                                if (Long.parseLong(获取.提取数字(args[0])) <= 10) {
+                                if (Long.parseLong(获取.提取数字(args[0])) <= 9) {
                                     int bound = 获取.数值(args[0]);
                                     IntStream.rangeClosed(0, bound).forEach(i -> 发信息(sender, String.format("§b第：§3%s §b期彩票开奖号码为： §e%s", 开奖时间[9 - i], Arrays.toString(开奖结果[9 - i]))));
                                 } else {
